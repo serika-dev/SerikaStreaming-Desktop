@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serika — Sign In</title>
+  <link rel="stylesheet" href="login.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- Logo -->
+    <div class="logo">
+      <svg width="140" height="40" viewBox="0 0 200 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="42" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="900" fill="white" letter-spacing="-1.5">SERIKA</text>
+      </svg>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="qr">QR Code</button>
+      <button class="tab" data-tab="password">Password</button>
+    </div>
+
+    <!-- Error banner -->
+    <div id="error" class="error hidden"></div>
+
+    <!-- QR Tab -->
+    <div id="qr-tab" class="tab-content active">
+      <div id="qr-loading" class="qr-loading">
+        <div class="spinner"></div>
+        <p>Generating code…</p>
+      </div>
+
+      <div id="qr-content" class="hidden">
+        <div class="qr-frame">
+          <img id="qr-image" alt="Scan to sign in" />
+          <div class="qr-overlay">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
+              <rect x="2" y="4" width="20" height="14" rx="2" />
+              <path d="M8 22h8M12 18v4" />
+            </svg>
+          </div>
+        </div>
+
+        <p class="qr-label">Or enter this code on your phone</p>
+        <div id="qr-code-display" class="code-display"></div>
+
+        <div class="qr-status">
+          <div class="pulse-dot"></div>
+          <span id="qr-timer">Waiting for link…</span>
+        </div>
+
+        <button id="qr-refresh" class="btn-secondary hidden">Generate New Code</button>
+      </div>
+
+      <div id="qr-linked" class="hidden qr-success">
+        <div class="success-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3">
+            <path d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <p>Linked!</p>
+        <p class="sub">Redirecting…</p>
+      </div>
+    </div>
+
+    <!-- Password Tab -->
+    <div id="password-tab" class="tab-content">
+      <form id="login-form" class="form">
+        <div class="field">
+          <label for="email">Email</label>
+          <div class="input-wrap">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <path d="m22 7-10 5L2 7" />
+            </svg>
+            <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required />
+            <button type="button" id="toggle-password" class="toggle-pw" tabindex="-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="checkbox">
+            <input type="checkbox" id="remember-me" />
+            <span>Remember me for 30 days</span>
+          </label>
+        </div>
+
+        <button type="submit" id="login-btn" class="btn-primary">
+          <span class="btn-text">Sign In</span>
+          <span class="btn-spinner hidden"></span>
+        </button>
+      </form>
+    </div>
+
+    <!-- 2FA Overlay -->
+    <div id="mfa-overlay" class="overlay hidden">
+      <div class="overlay-card">
+        <div class="mfa-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+        <h2>Multi-Factor Verification</h2>
+        <p class="mfa-sub">Enter your authenticator or backup code to continue.</p>
+
+        <form id="mfa-form" class="form">
+          <div class="field">
+            <input type="text" id="mfa-code" placeholder="123456 or BACK-UPCD" autocomplete="one-time-code" required />
+          </div>
+
+          <button type="submit" id="mfa-btn" class="btn-primary">
+            <span class="btn-text">Verify Code</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+
+          <button type="button" id="mfa-back" class="btn-link">Back</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>
