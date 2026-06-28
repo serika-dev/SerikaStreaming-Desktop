@@ -62,6 +62,7 @@ jobs:
           name: serika-desktop-${{ matrix.platform }}-${{ matrix.arch }}
           path: |
             dist/*.exe
+            dist/*.msi
             dist/*.dmg
             dist/*.zip
             dist/*.AppImage
@@ -129,7 +130,7 @@ jobs:
             echo "**Built:** ${BUILT_AT}"
             echo ""
             echo "### Downloads"
-            echo '- **Windows (x64):** `Serika-x.x.x-win-x64.exe` (NSIS installer)'
+            echo '- **Windows (x64):** `Serika-x.x.x-win-x64.exe` (NSIS installer) / `Serika-x.x.x-win-x64.msi` (MSI installer)'
             echo '- **macOS (x64):** `Serika-x.x.x-mac-x64.dmg` (DMG)'
             echo '- **Linux (x64):** `Serika-x.x.x-linux-x64.AppImage` / `serika-desktop_x.x.x_amd64.deb` / `serika-desktop-x.x.x-x86_64.rpm`'
             echo '- **Linux (ARM64):** `Serika-x.x.x-linux-arm64.AppImage` / `serika-desktop_x.x.x_arm64.deb` / `serika-desktop-x.x.x-aarch64.rpm`'
@@ -148,7 +149,7 @@ jobs:
           MAX_RETRIES=5
           
           # Collect only installer files (skip unpacked directories and internal files)
-          mapfile -t ASSETS < <(find artifacts -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.zip" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \))
+          mapfile -t ASSETS < <(find artifacts -type f \( -name "*.exe" -o -name "*.msi" -o -name "*.dmg" -o -name "*.zip" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \))
           echo "Assets to upload:"
           printf '  %s\n' "${ASSETS[@]}"
           

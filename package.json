@@ -35,7 +35,7 @@
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "publish": null,
     "win": {
-      "target": ["nsis"],
+      "target": ["nsis", "msi"],
       "icon": "build/icon.png"
     },
     "nsis": {
