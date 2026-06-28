@@ -18,13 +18,10 @@ jobs:
         include:
           - os: blacksmith-4vcpu-ubuntu-2404
             platform: linux
-            artifact: Serika-*-linux.*
           - os: blacksmith-4vcpu-windows-2025
             platform: win
-            artifact: Serika*-win.*
           - os: blacksmith-6vcpu-macos-latest
             platform: mac
-            artifact: Serika*-mac.*
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -41,15 +38,13 @@ jobs:
 
       - name: Build for ${{ matrix.platform }}
         run: bun run dist:${{ matrix.platform }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: serika-desktop-${{ matrix.platform }}
-          path: dist/${{ matrix.artifact }}
-          if-no-files-found: warn
+          path: dist/*
+          if-no-files-found: error
 
   release:
     needs: build
@@ -98,9 +93,9 @@ jobs:
             echo "**Built:** ${BUILT_AT}"
             echo ""
             echo "### Downloads"
-            echo "- **Windows:** \`Serika Setup x.x.x.exe\` (NSIS installer)"
-            echo "- **macOS:** \`Serika-x.x.x.dmg\` (DMG)"
-            echo "- **Linux:** \`Serika-x.x.x.AppImage\` / \`serika-desktop_x.x.x_amd64.deb\`"
+            echo "- **Windows:** \`Serika-x.x.x-win.exe\` (NSIS installer)"
+            echo "- **macOS:** \`Serika-x.x.x-mac.dmg\` (DMG)"
+            echo "- **Linux:** \`Serika-x.x.x-linux.AppImage\` / \`serika-desktop_x.x.x_amd64.deb\`"
             echo ""
             echo "Built with Bun + Electron on Blacksmith runners."
             echo "EOF"
