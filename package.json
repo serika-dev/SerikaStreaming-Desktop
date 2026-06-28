@@ -9,8 +9,8 @@
   "license": "MIT",
   "main": "src/main.js",
   "scripts": {
-    "start": "bun run electron . --no-sandbox --class=Serika",
-    "dev": "bun run electron . --dev --no-sandbox --class=Serika",
+    "start": "bun run electron . --no-sandbox",
+    "dev": "bun run electron . --dev --no-sandbox",
     "dist": "bun run electron-builder",
     "dist:win": "bun run electron-builder --win",
     "dist:mac": "bun run electron-builder --mac",
@@ -54,7 +54,10 @@
       "target": ["AppImage", "deb", "rpm"],
       "category": "AudioVideo",
       "icon": "build/icon.png",
-      "maintainer": "Serika <dev@serika.moe>"
+      "maintainer": "Serika <dev@serika.moe>",
+      "desktop": {
+        "StartupWMClass": "serika-desktop"
+      }
     }
   }
 }

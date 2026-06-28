@@ -8,10 +8,7 @@ const BASE_URL = 'https://serika.moe';
 const SESSION_COOKIE_NAME = 'serika_session';
 const PENDING_AUTH_COOKIE_NAME = 'serika_pending_auth';
 
-// Set app identity for taskbar icon on Linux and Windows
-if (process.platform === 'linux') {
-  app.commandLine.appendSwitch('class', 'Serika');
-}
+// Set app identity for taskbar icon on Windows
 app.setAppUserModelId('moe.serika.desktop');
 const TV_SESSION_DURATION_SECONDS = Math.floor(6 * 30 * 24 * 60 * 60); // 6 months
 
