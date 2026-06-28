@@ -141,20 +141,24 @@ jobs:
           NOTES_FILE="${{ steps.notes.outputs.path }}"
           MAX_RETRIES=5
           
+          # Collect only files (skip directories like *-unpacked)
+          mapfile -t ASSETS < <(find artifacts -type f)
+          echo "Assets to upload: ${ASSETS[@]}"
+          
           for i in $(seq 1 $MAX_RETRIES); do
             echo "Attempt $i/$MAX_RETRIES — creating release $TAG"
             if gh release create "$TAG" \
               --title "Serika Desktop $TAG" \
               --notes-file "$NOTES_FILE" \
               --latest \
-              artifacts/**/*; then
+              "${ASSETS[@]}"; then
               echo "Release created successfully."
               exit 0
             fi
             
             if [ "$i" -lt "$MAX_RETRIES" ]; then
               WAIT=$((60 * i))
-              echo "Failed (likely rate limited). Waiting ${WAIT}s before retry..."
+              echo "Failed. Waiting ${WAIT}s before retry..."
               sleep "$WAIT"
             fi
           done
