@@ -9,8 +9,8 @@
   "license": "MIT",
   "main": "src/main.js",
   "scripts": {
-    "start": "bun run electron . --no-sandbox",
-    "dev": "bun run electron . --dev --no-sandbox",
+    "start": "bun run electron . --no-sandbox --class=Serika",
+    "dev": "bun run electron . --dev --no-sandbox --class=Serika",
     "dist": "bun run electron-builder",
     "dist:win": "bun run electron-builder --win",
     "dist:mac": "bun run electron-builder --mac",
