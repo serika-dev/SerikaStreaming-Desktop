@@ -24,7 +24,7 @@ jobs:
           - os: blacksmith-4vcpu-ubuntu-2404-arm
             platform: linux
             arch: arm64
-            targets: "--target AppImage"
+            targets: "AppImage"
           - os: blacksmith-4vcpu-windows-2025
             platform: win
             arch: x64
