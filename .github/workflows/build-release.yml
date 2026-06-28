@@ -60,7 +60,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: serika-desktop-${{ matrix.platform }}-${{ matrix.arch }}
-          path: dist/*
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
           if-no-files-found: error
 
   release:
@@ -141,12 +147,22 @@ jobs:
           NOTES_FILE="${{ steps.notes.outputs.path }}"
           MAX_RETRIES=5
           
-          # Collect only files (skip directories like *-unpacked)
-          mapfile -t ASSETS < <(find artifacts -type f)
-          echo "Assets to upload: ${ASSETS[@]}"
+          # Collect only installer files (skip unpacked directories and internal files)
+          mapfile -t ASSETS < <(find artifacts -type f \(
+            -name "*.exe" -o
+            -name "*.dmg" -o
+            -name "*.zip" -o
+            -name "*.AppImage" -o
+            -name "*.deb" -o
+            -name "*.rpm"
+          \))
+          echo "Assets to upload:"
+          printf '  %s\n' "${ASSETS[@]}"
           
           for i in $(seq 1 $MAX_RETRIES); do
             echo "Attempt $i/$MAX_RETRIES — creating release $TAG"
+            # Delete any existing release for this tag (from partial previous attempts)
+            gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
             if gh release create "$TAG" \
               --title "Serika Desktop $TAG" \
               --notes-file "$NOTES_FILE" \
