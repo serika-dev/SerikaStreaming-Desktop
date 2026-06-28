@@ -116,9 +116,6 @@ jobs:
         with:
           path: artifacts
 
-      - name: List downloaded artifacts
-        run: find artifacts -type f | head -50
-
       - name: Build release notes
         id: notes
         run: |
@@ -151,14 +148,7 @@ jobs:
           MAX_RETRIES=5
           
           # Collect only installer files (skip unpacked directories and internal files)
-          mapfile -t ASSETS < <(find artifacts -type f \(
-            -name "*.exe" -o
-            -name "*.dmg" -o
-            -name "*.zip" -o
-            -name "*.AppImage" -o
-            -name "*.deb" -o
-            -name "*.rpm"
-          \))
+          mapfile -t ASSETS < <(find artifacts -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.zip" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \))
           echo "Assets to upload:"
           printf '  %s\n' "${ASSETS[@]}"
           
