@@ -18,4 +18,14 @@ contextBridge.exposeInMainWorld('serika', {
 
   checkSession: () =>
     ipcRenderer.invoke('auth:check-session'),
+
+  // Settings
+  getSettings: () =>
+    ipcRenderer.invoke('settings:get'),
+
+  setSetting: (key, value) =>
+    ipcRenderer.invoke('settings:set', { key, value }),
+
+  getStatus: () =>
+    ipcRenderer.invoke('settings:status'),
 });
