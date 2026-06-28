@@ -20,15 +20,19 @@ jobs:
           - os: blacksmith-4vcpu-ubuntu-2404
             platform: linux
             arch: x64
+            targets: ""
           - os: blacksmith-4vcpu-ubuntu-2404-arm
             platform: linux
             arch: arm64
+            targets: "--target AppImage"
           - os: blacksmith-4vcpu-windows-2025
             platform: win
             arch: x64
+            targets: ""
           - os: blacksmith-6vcpu-macos-latest
             platform: mac
             arch: x64
+            targets: ""
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -50,7 +54,7 @@ jobs:
           failOnError: false
 
       - name: Build for ${{ matrix.platform }} (${{ matrix.arch }})
-        run: bun run electron-builder --${{ matrix.platform }} --${{ matrix.arch }}
+        run: bun run electron-builder --${{ matrix.platform }} --${{ matrix.arch }} ${{ matrix.targets }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
