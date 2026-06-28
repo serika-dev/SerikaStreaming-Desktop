@@ -134,11 +134,31 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.version.outputs.tag }}
-          name: Serika Desktop ${{ steps.version.outputs.tag }}
-          body: ${{ steps.notes.outputs.body }}
-          files: artifacts/**/*
-          prerelease: false
-          make_latest: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.version.outputs.tag }}"
+          BODY="${{ steps.notes.outputs.body }}"
+          MAX_RETRIES=5
+          
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Attempt $i/$MAX_RETRIES — creating release $TAG"
+            if gh release create "$TAG" \
+              --title "Serika Desktop $TAG" \
+              --notes "$BODY" \
+              --latest \
+              artifacts/**/*; then
+              echo "Release created successfully."
+              exit 0
+            fi
+            
+            if [ "$i" -lt "$MAX_RETRIES" ]; then
+              WAIT=$((60 * i))
+              echo "Failed (likely rate limited). Waiting ${WAIT}s before retry..."
+              sleep "$WAIT"
+            fi
+          done
+          
+          echo "All retry attempts exhausted."
+          exit 1
