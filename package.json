@@ -6,12 +6,12 @@
   "license": "MIT",
   "main": "src/main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "electron . --dev",
-    "dist": "electron-builder",
-    "dist:win": "electron-builder --win",
-    "dist:mac": "electron-builder --mac",
-    "dist:linux": "electron-builder --linux"
+    "start": "bun run electron .",
+    "dev": "bun run electron . --dev",
+    "dist": "bun run electron-builder",
+    "dist:win": "bun run electron-builder --win",
+    "dist:mac": "bun run electron-builder --mac",
+    "dist:linux": "bun run electron-builder --linux"
   },
   "devDependencies": {
     "electron": "^31.0.0",

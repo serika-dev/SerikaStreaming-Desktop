@@ -2,7 +2,7 @@
 
 Cross-platform desktop app for Serika streaming (Windows, Linux, macOS).
 
-Built with Electron. Uses [serika.moe](https://serika.moe) as the frontend.
+Built with Electron + [Bun](https://bun.sh). Uses [serika.moe](https://serika.moe) as the frontend.
 
 ## Features
 
@@ -13,14 +13,14 @@ Built with Electron. Uses [serika.moe](https://serika.moe) as the frontend.
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org) 18+ and npm
+- [Bun](https://bun.sh) 1.1+
 
 ## Development
 
 ```bash
 cd desktop
-npm install
-npm start
+bun install
+bun start
 ```
 
 ## Building
@@ -29,12 +29,12 @@ You need an app icon at `build/icon.png` (512×512 recommended). If missing, Ele
 
 ```bash
 # Build for current platform
-npm run dist
+bun run dist
 
 # Build for specific platforms
-npm run dist:win    # Windows (NSIS installer)
-npm run dist:mac    # macOS (DMG)
-npm run dist:linux  # Linux (AppImage + deb)
+bun run dist:win    # Windows (NSIS installer)
+bun run dist:mac    # macOS (DMG)
+bun run dist:linux  # Linux (AppImage + deb)
 ```
 
 Output goes to `dist/`.
