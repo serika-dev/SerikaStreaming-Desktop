@@ -116,7 +116,6 @@ jobs:
           COMMIT_MSG="$(git log -1 --pretty=format:'%s')"
           BUILT_AT="$(date -u +'%Y-%m-%d %H:%M UTC')"
           {
-            echo "body<<EOF"
             echo "## Serika Desktop — Automated Build"
             echo ""
             echo "**Commit:** ${{ github.sha }}"
@@ -124,14 +123,14 @@ jobs:
             echo "**Built:** ${BUILT_AT}"
             echo ""
             echo "### Downloads"
-            echo "- **Windows (x64):** \`Serika-x.x.x-win-x64.exe\` (NSIS installer)"
-            echo "- **macOS (x64):** \`Serika-x.x.x-mac-x64.dmg\` (DMG)"
-            echo "- **Linux (x64):** \`Serika-x.x.x-linux-x64.AppImage\` / \`serika-desktop_x.x.x_amd64.deb\` / \`serika-desktop-x.x.x-x86_64.rpm\`"
-            echo "- **Linux (ARM64):** \`Serika-x.x.x-linux-arm64.AppImage\` / \`serika-desktop_x.x.x_arm64.deb\` / \`serika-desktop-x.x.x-aarch64.rpm\`"
+            echo '- **Windows (x64):** `Serika-x.x.x-win-x64.exe` (NSIS installer)'
+            echo '- **macOS (x64):** `Serika-x.x.x-mac-x64.dmg` (DMG)'
+            echo '- **Linux (x64):** `Serika-x.x.x-linux-x64.AppImage` / `serika-desktop_x.x.x_amd64.deb` / `serika-desktop-x.x.x-x86_64.rpm`'
+            echo '- **Linux (ARM64):** `Serika-x.x.x-linux-arm64.AppImage` / `serika-desktop_x.x.x_arm64.deb` / `serika-desktop-x.x.x-aarch64.rpm`'
             echo ""
             echo "Built with Bun + Electron on Blacksmith runners."
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          } > release-notes.md
+          echo "path=release-notes.md" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         env:
@@ -139,14 +138,14 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${{ steps.version.outputs.tag }}"
-          BODY="${{ steps.notes.outputs.body }}"
+          NOTES_FILE="${{ steps.notes.outputs.path }}"
           MAX_RETRIES=5
           
           for i in $(seq 1 $MAX_RETRIES); do
             echo "Attempt $i/$MAX_RETRIES — creating release $TAG"
             if gh release create "$TAG" \
               --title "Serika Desktop $TAG" \
-              --notes "$BODY" \
+              --notes-file "$NOTES_FILE" \
               --latest \
               artifacts/**/*; then
               echo "Release created successfully."
