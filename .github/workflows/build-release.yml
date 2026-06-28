@@ -54,7 +54,7 @@ jobs:
           failOnError: false
 
       - name: Build for ${{ matrix.platform }} (${{ matrix.arch }})
-        run: bun run electron-builder --${{ matrix.platform }} --${{ matrix.arch }} ${{ matrix.targets }}
+        run: bun run electron-builder --${{ matrix.platform }} ${{ matrix.targets }} --${{ matrix.arch }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
