@@ -1,0 +1,117 @@
+name: Build & Release
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: blacksmith-4vcpu-ubuntu-2404
+            platform: linux
+            artifact: Serika-*-linux.*
+          - os: blacksmith-4vcpu-windows-2025
+            platform: win
+            artifact: Serika*-win.*
+          - os: blacksmith-6vcpu-macos-latest
+            platform: mac
+            artifact: Serika*-mac.*
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build for ${{ matrix.platform }}
+        run: bun run dist:${{ matrix.platform }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: serika-desktop-${{ matrix.platform }}
+          path: dist/${{ matrix.artifact }}
+          if-no-files-found: warn
+
+  release:
+    needs: build
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate version tag
+        id: version
+        run: |
+          SHORT_SHA="$(git rev-parse --short HEAD)"
+          TIMESTAMP="$(date -u +'%Y%m%d%H%M')"
+          TAG="v1.0.0-${TIMESTAMP}-${SHORT_SHA}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Generated tag: $TAG"
+
+      - name: Create tag
+        run: |
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Build release notes
+        id: notes
+        run: |
+          COMMIT_MSG="$(git log -1 --pretty=format:'%s')"
+          BUILT_AT="$(date -u +'%Y-%m-%d %H:%M UTC')"
+          {
+            echo "body<<EOF"
+            echo "## Serika Desktop — Automated Build"
+            echo ""
+            echo "**Commit:** ${{ github.sha }}"
+            echo "**Message:** ${COMMIT_MSG}"
+            echo "**Built:** ${BUILT_AT}"
+            echo ""
+            echo "### Downloads"
+            echo "- **Windows:** \`Serika Setup x.x.x.exe\` (NSIS installer)"
+            echo "- **macOS:** \`Serika-x.x.x.dmg\` (DMG)"
+            echo "- **Linux:** \`Serika-x.x.x.AppImage\` / \`serika-desktop_x.x.x_amd64.deb\`"
+            echo ""
+            echo "Built with Bun + Electron on Blacksmith runners."
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Serika Desktop ${{ steps.version.outputs.tag }}
+          body: ${{ steps.notes.outputs.body }}
+          files: artifacts/**/*
+          prerelease: false
+          make_latest: true
