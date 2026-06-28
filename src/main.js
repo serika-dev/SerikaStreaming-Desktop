@@ -7,6 +7,11 @@ const { buildIcon } = require('./icon');
 const BASE_URL = 'https://serika.moe';
 const SESSION_COOKIE_NAME = 'serika_session';
 const PENDING_AUTH_COOKIE_NAME = 'serika_pending_auth';
+
+// Set WM_CLASS on Linux so taskbar shows our icon instead of Electron's
+if (process.platform === 'linux') {
+  app.setAppUserModelId('moe.serika.desktop');
+}
 const TV_SESSION_DURATION_SECONDS = Math.floor(6 * 30 * 24 * 60 * 60); // 6 months
 
 let loginWindow = null;
@@ -149,6 +154,7 @@ function createLoginWindow() {
     },
   });
 
+  loginWindow.setIcon(appIcon);
   loginWindow.loadFile(path.join(__dirname, 'login.html'));
 
   if (process.argv.includes('--dev')) {
@@ -189,6 +195,7 @@ function createMainWindow(show = true) {
     },
   });
 
+  mainWindow.setIcon(appIcon);
   mainWindow.loadURL(BASE_URL);
 
   mainWindow.once('ready-to-show', () => {
@@ -268,6 +275,7 @@ function createSettingsWindow() {
       nodeIntegration: false,
     },
   });
+  settingsWindow.setIcon(appIcon);
   settingsWindow.loadFile(path.join(__dirname, 'settings.html'));
   settingsWindow.on('closed', () => {
     settingsWindow = null;
