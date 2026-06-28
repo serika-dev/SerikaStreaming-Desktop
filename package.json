@@ -30,7 +30,8 @@
       "buildResources": "build"
     },
     "files": [
-      "src/**/*"
+      "src/**/*",
+      "build/icon.png"
     ],
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "publish": null,
