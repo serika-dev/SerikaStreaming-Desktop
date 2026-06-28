@@ -32,7 +32,7 @@
     "files": [
       "src/**/*"
     ],
-    "artifactName": "${productName}-${version}-${os}.${ext}",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "publish": null,
     "win": {
       "target": ["nsis"],
@@ -50,7 +50,7 @@
       "icon": "build/icon.png"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": ["AppImage", "deb", "rpm"],
       "category": "AudioVideo",
       "icon": "build/icon.png",
       "maintainer": "Serika <dev@serika.moe>"

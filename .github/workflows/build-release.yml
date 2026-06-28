@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   build:
@@ -18,10 +19,16 @@ jobs:
         include:
           - os: blacksmith-4vcpu-ubuntu-2404
             platform: linux
+            arch: x64
+          - os: blacksmith-4vcpu-ubuntu-2404-arm
+            platform: linux
+            arch: arm64
           - os: blacksmith-4vcpu-windows-2025
             platform: win
+            arch: x64
           - os: blacksmith-6vcpu-macos-latest
             platform: mac
+            arch: x64
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -36,19 +43,33 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Build for ${{ matrix.platform }}
-        run: bun run dist:${{ matrix.platform }}
+      - name: Delete old artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/actions/artifacts" \
+            --paginate -q '.artifacts[] | select(.name == "serika-desktop-${{ matrix.platform }}-${{ matrix.arch }}") | .id' | \
+          while read -r id; do
+            echo "Deleting old artifact $id"
+            gh api "repos/${{ github.repository }}/actions/artifacts/$id" -X DELETE
+          done
+
+      - name: Build for ${{ matrix.platform }} (${{ matrix.arch }})
+        run: bun run electron-builder --${{ matrix.platform }} --${{ matrix.arch }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: serika-desktop-${{ matrix.platform }}
+          name: serika-desktop-${{ matrix.platform }}-${{ matrix.arch }}
           path: dist/*
           if-no-files-found: error
 
   release:
     needs: build
     runs-on: blacksmith-2vcpu-ubuntu-2404
+    permissions:
+      contents: write
+      actions: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,6 +89,17 @@ jobs:
           TAG="v1.0.0-${TIMESTAMP}-${SHORT_SHA}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "Generated tag: $TAG"
+
+      - name: Delete existing tag if present
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          if git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG"; then
+            echo "Tag $TAG already exists, deleting..."
+            gh api "repos/${{ github.repository }}/git/refs/tags/${TAG}" -X DELETE || true
+            git push origin --delete "$TAG" || true
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create tag
         run: |
@@ -93,9 +125,10 @@ jobs:
             echo "**Built:** ${BUILT_AT}"
             echo ""
             echo "### Downloads"
-            echo "- **Windows:** \`Serika-x.x.x-win.exe\` (NSIS installer)"
-            echo "- **macOS:** \`Serika-x.x.x-mac.dmg\` (DMG)"
-            echo "- **Linux:** \`Serika-x.x.x-linux.AppImage\` / \`serika-desktop_x.x.x_amd64.deb\`"
+            echo "- **Windows (x64):** \`Serika-x.x.x-win-x64.exe\` (NSIS installer)"
+            echo "- **macOS (x64):** \`Serika-x.x.x-mac-x64.dmg\` (DMG)"
+            echo "- **Linux (x64):** \`Serika-x.x.x-linux-x64.AppImage\` / \`serika-desktop_x.x.x_amd64.deb\` / \`serika-desktop-x.x.x-x86_64.rpm\`"
+            echo "- **Linux (ARM64):** \`Serika-x.x.x-linux-arm64.AppImage\` / \`serika-desktop_x.x.x_arm64.deb\` / \`serika-desktop-x.x.x-aarch64.rpm\`"
             echo ""
             echo "Built with Bun + Electron on Blacksmith runners."
             echo "EOF"
