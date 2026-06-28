@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/serika-dev/SerikaStreaming-Desktop/main/assets/logo.png" alt="Serika Desktop" width="220">
-</p>
-
 <h1 align="center">Serika Desktop</h1>
 
 <p align="center">
@@ -173,6 +169,8 @@ desktop/
 │   ├── settings.js       # Persistent settings store (userData)
 │   ├── presence.js       # Discord Rich Presence module
 │   └── icon.js           # Runtime PNG tray icon generator
+├── build/
+│   └── icon.png          # App icon for window, tray, and installers
 ├── package.json          # Electron + Bun + electron-builder config
 ├── README.md             # This file
 └── .gitignore
@@ -182,9 +180,9 @@ desktop/
 
 ## Building & Releasing
 
-### Add an icon (optional)
+### App icon
 
-For a branded app icon, place a `build/icon.png` file (512×512 recommended) at the project root. If you skip this, the app will use a runtime-generated purple "S" icon.
+The app icon is `build/icon.png` (already included). The tray icon, window icon, and installer icon all load from this file, with automatic resizing. If `build/icon.png` is missing, a runtime-generated purple "S" icon is used as a fallback.
 
 ### Build commands
 

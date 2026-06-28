@@ -1,8 +1,10 @@
 /**
- * Generates a Serika tray/app icon as a PNG nativeImage at runtime.
- * Avoids shipping binary assets. Draws a rounded purple tile with an "S".
+ * Returns the Serika app/tray icon as a nativeImage.
+ * If build/icon.png exists, it is loaded and resized; otherwise a generated purple "S" icon is used.
  */
 
+const fs = require('fs');
+const path = require('path');
 const zlib = require('zlib');
 const { nativeImage } = require('electron');
 
@@ -84,6 +86,18 @@ const S_GLYPH = [
 ];
 
 function buildIcon(size = 32) {
+  const iconPath = path.join(__dirname, '..', 'build', 'icon.png');
+  if (fs.existsSync(iconPath)) {
+    try {
+      const img = nativeImage.createFromPath(iconPath);
+      if (!img.isEmpty()) {
+        return img.resize({ width: size, height: size, quality: 'best' });
+      }
+    } catch {
+      // fall through to generated icon
+    }
+  }
+
   const rgba = new Uint8Array(size * size * 4);
 
   // Purple background (#8b5cf6) with rounded corners
