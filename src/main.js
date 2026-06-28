@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, session, shell, Menu, Tray } = require('ele
 const path = require('path');
 const settingsStore = require('./settings');
 const presence = require('./presence');
-const { buildIcon } = require('./icon');
+const { buildIcon, getIconPath } = require('./icon');
 
 const BASE_URL = 'https://serika.moe';
 const SESSION_COOKIE_NAME = 'serika_session';
@@ -511,7 +511,13 @@ app.on('second-instance', () => {
 });
 
 app.whenReady().then(async () => {
-  appIcon = buildIcon(256);
+  // On Linux, use the file path directly — nativeImage resize can fail or produce empty images
+  if (process.platform === 'linux') {
+    const iconPath = getIconPath();
+    appIcon = iconPath || buildIcon(256);
+  } else {
+    appIcon = buildIcon(256);
+  }
 
   if (process.platform === 'darwin') {
     Menu.setApplicationMenu(

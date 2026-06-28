@@ -98,6 +98,18 @@ function buildIcon(size = 32) {
     }
   }
 
+  return generateFallbackIcon(size);
+}
+
+function getIconPath() {
+  const iconPath = path.join(__dirname, '..', 'build', 'icon.png');
+  if (fs.existsSync(iconPath)) {
+    return iconPath;
+  }
+  return null;
+}
+
+function generateFallbackIcon(size = 32) {
   const rgba = new Uint8Array(size * size * 4);
 
   // Purple background (#8b5cf6) with rounded corners
@@ -157,4 +169,4 @@ function buildIcon(size = 32) {
   return nativeImage.createFromBuffer(encodePNG(size, size, rgba));
 }
 
-module.exports = { buildIcon };
+module.exports = { buildIcon, getIconPath };
