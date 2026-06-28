@@ -6,12 +6,13 @@
   "license": "MIT",
   "main": "src/main.js",
   "scripts": {
-    "start": "bun run electron .",
-    "dev": "bun run electron . --dev",
+    "start": "bun run electron . --no-sandbox",
+    "dev": "bun run electron . --dev --no-sandbox",
     "dist": "bun run electron-builder",
     "dist:win": "bun run electron-builder --win",
     "dist:mac": "bun run electron-builder --mac",
-    "dist:linux": "bun run electron-builder --linux"
+    "dist:linux": "bun run electron-builder --linux",
+    "fix:sandbox": "sudo chown root node_modules/electron/dist/chrome-sandbox && sudo chmod 4755 node_modules/electron/dist/chrome-sandbox"
   },
   "devDependencies": {
     "electron": "^31.0.0",
