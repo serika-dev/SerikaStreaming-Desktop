@@ -116,13 +116,8 @@ jobs:
         with:
           path: artifacts
 
-      - name: Unzip artifacts
-        run: |
-          find artifacts -name "*.zip" | while read -r zip; do
-            dir="$(dirname "$zip")"
-            unzip -o "$zip" -d "$dir"
-            rm "$zip"
-          done
+      - name: List downloaded artifacts
+        run: find artifacts -type f | head -50
 
       - name: Build release notes
         id: notes
