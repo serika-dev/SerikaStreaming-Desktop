@@ -35,7 +35,7 @@ let logFn = (msg) => console.log(`[presence] ${msg}`);
 
 function getIPCPath(id) {
   if (process.platform === 'win32') {
-    return '\\\\?\\pipe\\discord-ipc-' + id;
+    return '\\\\.\\pipe\\discord-ipc-' + id;
   }
   const prefix =
     process.env.XDG_RUNTIME_DIR ||
@@ -67,8 +67,70 @@ function decodeIPC(buffer) {
 
 function tryConnect(pipePath) {
   return new Promise((resolve) => {
-    const socket = net.createConnection(pipePath, () => resolve(socket));
-    socket.once('error', () => resolve(null));
+    let settled = false;
+    const socket = net.createConnection(pipePath, () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(socket);
+    });
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      try { socket.destroy(); } catch {}
+      resolve(null);
+    }, 2000);
+    socket.once('error', () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(null);
+    });
+  });
+}
+
+function waitForReady(socket) {
+  return new Promise((resolve) => {
+    let buf = Buffer.alloc(0);
+    let settled = false;
+
+    const timer = setTimeout(() => {
+      if (!settled) { settled = true; cleanup(); resolve(null); }
+    }, 5000);
+
+    const onData = (chunk) => {
+      buf = Buffer.concat([buf, chunk]);
+      let msg;
+      while ((msg = decodeIPC(buf)) !== null) {
+        buf = msg.rest;
+        if (msg.opcode === 1 && msg.data.evt === 'READY' && !settled) {
+          settled = true;
+          cleanup();
+          resolve({ user: msg.data.data.user, leftoverBuf: buf });
+        }
+      }
+    };
+
+    const onClose = () => {
+      if (!settled) { settled = true; cleanup(); resolve(null); }
+    };
+
+    const onError = () => {
+      if (!settled) { settled = true; cleanup(); resolve(null); }
+    };
+
+    function cleanup() {
+      clearTimeout(timer);
+      socket.removeListener('data', onData);
+      socket.removeListener('close', onClose);
+      socket.removeListener('error', onError);
+    }
+
+    socket.on('data', onData);
+    socket.on('close', onClose);
+    socket.on('error', onError);
+
+    socket.write(encodeIPC(0, { v: 1, client_id: DISCORD_CLIENT_ID }));
   });
 }
 
@@ -90,19 +152,22 @@ async function connectDiscord() {
       const socket = await tryConnect(pipePath);
       if (!socket) continue;
 
-      ipcSocket = socket;
-      let buf = Buffer.alloc(0);
+      const result = await waitForReady(socket);
+      if (!result) {
+        try { socket.destroy(); } catch {}
+        continue;
+      }
 
+      ipcSocket = socket;
+      isConnected = true;
+      logFn('Connected to Discord as ' + result.user.username);
+
+      let buf = result.leftoverBuf;
       socket.on('data', (chunk) => {
         buf = Buffer.concat([buf, chunk]);
         let msg;
         while ((msg = decodeIPC(buf)) !== null) {
           buf = msg.rest;
-          if (msg.opcode === 1 && msg.data.evt === 'READY') {
-            isConnected = true;
-            const u = msg.data.data.user;
-            logFn('Connected to Discord as ' + u.username);
-          }
         }
       });
 
@@ -120,8 +185,6 @@ async function connectDiscord() {
         ipcSocket = null;
       });
 
-      socket.write(encodeIPC(0, { v: 1, client_id: DISCORD_CLIENT_ID }));
-      await new Promise((r) => setTimeout(r, 1500));
       return true;
     }
   }
