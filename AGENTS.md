@@ -16,8 +16,8 @@ Instructions for AI coding agents working on the Serika Streaming desktop app.
 
 **Every change you make here must raise it, in the same commit as the change, and every other repo above must be raised to the same number.** Start from the highest version any of them holds:
 
-- **Patch** (`1.0.30` → `1.0.31`): fixes, tweaks and anything small. This is the default.
-- **Minor** (`1.0.31` → `1.1.0`): a new feature users will notice.
+- **Patch** (`1.0.30` → `1.0.31`): every change, new features included. This is the default.
+- **Minor** (`1.0.31` → `1.1.0`): only when you are asked to.
 - **Major** (`1.1.0` → `2.0.0`): only when you are asked to.
 
 Bump once per task, not once per commit. If a task takes several commits, raise it in the first one and leave it there. Never lower it or reuse a number.
