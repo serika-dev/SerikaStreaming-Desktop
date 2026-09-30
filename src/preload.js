@@ -30,4 +30,11 @@ contextBridge.exposeInMainWorld('serika', {
 
   getStatus: () =>
     ipcRenderer.invoke('settings:status'),
+
+  // A/B tests; pages use window.serikaExperiments (experiments-ui.js).
+  experiments: {
+    get: () => ipcRenderer.invoke('experiments:get'),
+    expose: (keys) => ipcRenderer.invoke('experiments:expose', { keys }),
+    track: (goal, value) => ipcRenderer.invoke('experiments:track', { goal, value }),
+  },
 });

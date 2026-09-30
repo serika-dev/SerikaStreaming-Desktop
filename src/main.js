@@ -3,6 +3,7 @@ const path = require('path');
 const settingsStore = require('./settings');
 const presence = require('./presence');
 const { buildIcon, getIconPath } = require('./icon');
+const { createExperimentsClient } = require('./experiments');
 
 const BASE_URL = 'https://serika.moe';
 const { pathToFileURL } = require('url');
@@ -525,6 +526,19 @@ ipcMain.handle('settings:set', async (_event, { key, value }) => {
   } catch (error) { settingsStore.set(key, previous); throw error; }
 });
 
+// ─── IPC: A/B tests (for login.html and settings.html; the site handles its own) ─
+
+let experimentsClient = null;
+const getExperimentsClient = () => (experimentsClient ??= createExperimentsClient({
+  baseUrl: BASE_URL,
+  cookies: session.defaultSession.cookies,
+  fetch: fetchWithTimeout,
+}));
+
+ipcMain.handle('experiments:get', () => getExperimentsClient().get());
+ipcMain.handle('experiments:expose', (_event, { keys }) => getExperimentsClient().expose(keys));
+ipcMain.handle('experiments:track', (_event, { goal, value }) => getExperimentsClient().track(goal, value));
+
 ipcMain.handle('settings:status', async () => {
   return {
     presenceActive: presence.isActive(),
@@ -573,6 +587,8 @@ app.on('second-instance', () => {
 });
 
 app.whenReady().then(async () => {
+  // Signed-out A/B test bucketing: one device id for the site and this app's own pages.
+  getExperimentsClient().ensureDeviceId().catch(() => undefined);
   // On Linux, use the file path directly — nativeImage resize can fail or produce empty images
   if (process.platform === 'linux') {
     const iconPath = getIconPath();

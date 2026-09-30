@@ -28,6 +28,20 @@ Keep these in step with `version.txt` whenever you bump it:
 
 - `package.json` → `version` (the release workflow tags builds `v<version>-<timestamp>-<sha>` from it)
 
+## A/B tests
+
+serika.moe assigns experiments (Admin → Experiments) and recognises the main window by its
+Electron user agent, so the site needs nothing from this app. The app's own pages (login,
+settings) load `experiments-ui.js`, which gives them the same API as the site:
+
+```html
+<div class="ab--new-login--qr-first">…</div>    <!-- shows only for that variant -->
+<script>serikaExperiments.variant('new-login'); serikaExperiments.track('goal-name');</script>
+```
+
+`src/experiments.js` fetches the variants with the session cookie and keeps the `serika_ab`
+device cookie that the site uses too.
+
 ## Why it matters
 
 Raising `version.txt` on `main` is what releases this to users.
