@@ -35,6 +35,11 @@
       return this.assignments[key]?.variant || 'control';
     }
 
+    /** Feature rollouts: does this person have it? */
+    isOn(key) {
+      return this.variant(key) !== 'control';
+    }
+
     config(key) {
       return this.assignments[key]?.config || {};
     }

@@ -95,6 +95,8 @@ test('pages show only the assigned variant of each ab-- class and report what wa
   await window.serikaExperiments.ready;
   assert.deepEqual(elements.map((el) => el.hidden()), [true, false, true, false]);
   assert.equal(window.serikaExperiments.variant('new-login'), 'qr-first');
+  assert.equal(window.serikaExperiments.isOn('new-login'), true);
+  assert.equal(window.serikaExperiments.isOn('unknown'), false);
   assert.equal(document.documentElement.dataset.ab, 'new-login:qr-first');
   assert.deepEqual(exposed, ['new-login']);
 });

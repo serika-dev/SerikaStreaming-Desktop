@@ -36,7 +36,7 @@ settings) load `experiments-ui.js`, which gives them the same API as the site:
 
 ```html
 <div class="ab--new-login--qr-first">…</div>    <!-- shows only for that variant -->
-<script>serikaExperiments.variant('new-login'); serikaExperiments.track('goal-name');</script>
+<script>serikaExperiments.variant('new-login'); serikaExperiments.isOn('new-login'); serikaExperiments.track('goal-name');</script>
 ```
 
 `src/experiments.js` fetches the variants with the session cookie and keeps the `serika_ab`
